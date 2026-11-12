@@ -1,0 +1,221 @@
+name: Desktop Fork Release
+
+run-name: "Desktop fork release ${{ inputs.version }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Desktop SemVer (use X.Y.Z-rc.N for prereleases)"
+        required: true
+        type: string
+        default: "0.1.0-rc.1"
+      qwen_code_ref:
+        description: "Branch or SHA to bundle"
+        required: true
+        type: string
+        default: "main"
+      draft:
+        description: "Create a draft GitHub release"
+        required: true
+        type: boolean
+        default: true
+      prerelease:
+        description: "Mark the release as a prerelease"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-fork-release-${{ inputs.version }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22.20.0"
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      tag: ${{ steps.v.outputs.tag }}
+      sha: ${{ steps.s.outputs.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: v
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          IS_PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          version="${INPUT_VERSION#v}"
+          if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+([+-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Invalid SemVer: $INPUT_VERSION"
+            exit 1
+          fi
+          if [ "$IS_PRERELEASE" = true ] && [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+- ]]; then
+            echo "::error::Prereleases need a suffix like 0.1.0-rc.1"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=desktop-v$version" >> "$GITHUB_OUTPUT"
+      - id: s
+        env:
+          REF: ${{ inputs.qwen_code_ref }}
+        run: |
+          set -euo pipefail
+          git fetch origin "$REF"
+          echo "sha=$(git rev-parse FETCH_HEAD)" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: prepare
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux x64
+            os: ubuntu-22.04
+            artifact_suffix: linux-x64
+            rust_target: x86_64-unknown-linux-gnu
+            tauri_args: "--target x86_64-unknown-linux-gnu --bundles appimage,deb"
+          - name: Windows x64
+            os: windows-latest
+            artifact_suffix: windows-x64
+            rust_target: x86_64-pc-windows-msvc
+            tauri_args: "--target x86_64-pc-windows-msvc --bundles nsis"
+          - name: macOS arm64
+            os: macos-latest
+            artifact_suffix: macos-arm64
+            rust_target: aarch64-apple-darwin
+            tauri_args: "--target aarch64-apple-darwin --bundles app,dmg"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev \
+            libatk-bridge2.0-0 at-spi2-core dbus-x11 patchelf libfuse2 xdg-utils
+
+      - name: Install monorepo deps
+        env:
+          QWEN_SKIP_PREPARE: "1"
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            corepack enable
+            corepack pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
+          else
+            npm ci --no-audit --progress=false
+          fi
+
+      - name: Install desktop deps
+        working-directory: packages/desktop
+        run: npm ci
+
+      - name: Set desktop version
+        working-directory: packages/desktop
+        run: node scripts/version.js "${{ needs.prepare.outputs.version }}"
+
+      - name: Prepare bundled runtime
+        working-directory: packages/desktop
+        run: npm run build:runtime
+
+      - name: Build installers (unsigned)
+        working-directory: packages/desktop
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$RUNNER_OS" = Linux ]; then
+            export QWEN_DESKTOP_PATCHELF="$(command -v patchelf || true)"
+            export PATCHELF="$GITHUB_WORKSPACE/packages/desktop/scripts/patchelf-immutable-runtime.sh"
+          fi
+          npm run tauri -- build ${{ matrix.tauri_args }} --no-sign
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="$RUNNER_TEMP/desktop-artifacts"
+          mkdir -p "$dest"
+          bundle="packages/desktop/src-tauri/target/${{ matrix.rust_target }}/release/bundle"
+          find "$bundle" -type f \( -name '*.dmg' -o -name '*.AppImage' -o -name '*.deb' -o -name '*.exe' -o -name '*.zip' -o -name '*.app.tar.gz' \) -print0 |
+            while IFS= read -r -d '' f; do
+              cp "$f" "$dest/$(basename "$f" | tr ' ' '-')"
+            done
+          find "$dest" -type f -ls
+          test -n "$(find "$dest" -type f -print -quit)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.artifact_suffix }}
+          path: ${{ runner.temp }}/desktop-artifacts/*
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish GitHub release
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          pattern: desktop-*
+          merge-multiple: true
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.prepare.outputs.tag }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          DRAFT: ${{ inputs.draft }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          assets=(release-assets/*)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "::error::No release assets downloaded"
+            exit 1
+          fi
+          notes="Qwen Code Desktop $VERSION (unsigned fork build)
+
+Includes LM Studio / Ollama local providers in /auth.
+
+Installers are unsigned (no Apple/Windows/Tauri signing secrets on this fork)."
+          args=(--title "Qwen Code Desktop $VERSION" --notes "$notes")
+          if [ "$DRAFT" = true ]; then args+=(--draft); fi
+          if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${assets[@]}" --clobber
+            edit=(--notes "$notes")
+            if [ "$DRAFT" = true ]; then edit+=(--draft); else edit+=(--draft=false); fi
+            if [ "$PRERELEASE" = true ]; then edit+=(--prerelease); else edit+=(--prerelease=false); fi
+            gh release edit "$TAG" "${edit[@]}"
+          else
+            gh release create "$TAG" "${assets[@]}" "${args[@]}"
+          fi
+          echo "Release: https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG"
