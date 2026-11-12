@@ -23,6 +23,8 @@ import { zaiProvider } from './presets/zai.js';
 import { moonshotProvider } from './presets/moonshot.js';
 import { idealabProvider } from './presets/idealab.js';
 import { modelscopeProvider } from './presets/modelscope.js';
+import { lmstudioProvider } from './presets/lmstudio.js';
+import { ollamaProvider } from './presets/ollama.js';
 import { customProvider } from './presets/custom-provider.js';
 
 // Re-export all providers
@@ -41,6 +43,8 @@ export {
   moonshotProvider,
   idealabProvider,
   modelscopeProvider,
+  lmstudioProvider,
+  ollamaProvider,
   customProvider,
 };
 export {
@@ -71,6 +75,8 @@ export const ALL_PROVIDERS: readonly ProviderConfig[] = [
   modelscopeProvider,
   openRouterProvider,
   requestyProvider,
+  lmstudioProvider,
+  ollamaProvider,
   customProvider,
 ];
 
@@ -83,6 +89,9 @@ export const ALIBABA_PROVIDERS = ALL_PROVIDERS.filter(
 );
 export const THIRD_PARTY_PROVIDERS = ALL_PROVIDERS.filter(
   (p) => p.uiGroup === 'third-party',
+);
+export const LOCAL_PROVIDERS = ALL_PROVIDERS.filter(
+  (p) => p.uiGroup === 'local',
 );
 
 export function findProviderById(id: string): ProviderConfig | undefined {
