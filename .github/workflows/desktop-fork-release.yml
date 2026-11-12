@@ -78,6 +78,9 @@ jobs:
     needs: prepare
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -143,7 +146,6 @@ jobs:
 
       - name: Build installers (unsigned)
         working-directory: packages/desktop
-        shell: bash
         run: |
           set -euo pipefail
           if [ "$RUNNER_OS" = Linux ]; then
@@ -153,7 +155,6 @@ jobs:
           npm run tauri -- build ${{ matrix.tauri_args }} --no-sign
 
       - name: Collect artifacts
-        shell: bash
         run: |
           set -euo pipefail
           dest="$RUNNER_TEMP/desktop-artifacts"
@@ -201,12 +202,7 @@ jobs:
             echo "::error::No release assets downloaded"
             exit 1
           fi
-          notes="$(printf '%s\n' \
-            "Qwen Code Desktop $VERSION (unsigned fork build)" \
-            "" \
-            "Includes LM Studio / Ollama local providers in /auth." \
-            "" \
-            "Installers are unsigned (no Apple/Windows/Tauri signing secrets on this fork).")"
+          notes="Qwen Code Desktop $VERSION (unsigned fork build). Includes LM Studio/Ollama in /auth. Unsigned installers."
           args=(--title "Qwen Code Desktop $VERSION" --notes "$notes")
           if [ "$DRAFT" = true ]; then args+=(--draft); fi
           if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi

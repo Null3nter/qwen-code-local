@@ -23,7 +23,7 @@ export const ollamaProvider: ProviderConfig = {
   models: [
     {
       id: 'qwen3-coder:latest',
-      name: 'Qwen3 Coder (edit to match ollama list)',
+      description: 'Qwen3 Coder (edit to match ollama list)',
       contextWindowSize: 32768,
     },
   ],

@@ -26,7 +26,7 @@ export const lmstudioProvider: ProviderConfig = {
       // Placeholder id — user replaces with the model id shown in LM Studio
       // (e.g. qwen3-coder-30b, qwen2.5-coder-14b-instruct, etc.).
       id: 'local-model',
-      name: 'Local model (edit id to match LM Studio)',
+      description: 'Local model (edit id to match LM Studio)',
       contextWindowSize: 131072,
     },
   ],
