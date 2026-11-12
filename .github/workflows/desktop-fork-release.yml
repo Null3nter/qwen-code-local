@@ -201,11 +201,12 @@ jobs:
             echo "::error::No release assets downloaded"
             exit 1
           fi
-          notes="Qwen Code Desktop $VERSION (unsigned fork build)
-
-Includes LM Studio / Ollama local providers in /auth.
-
-Installers are unsigned (no Apple/Windows/Tauri signing secrets on this fork)."
+          notes="$(printf '%s\n' \
+            "Qwen Code Desktop $VERSION (unsigned fork build)" \
+            "" \
+            "Includes LM Studio / Ollama local providers in /auth." \
+            "" \
+            "Installers are unsigned (no Apple/Windows/Tauri signing secrets on this fork).")"
           args=(--title "Qwen Code Desktop $VERSION" --notes "$notes")
           if [ "$DRAFT" = true ]; then args+=(--draft); fi
           if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
