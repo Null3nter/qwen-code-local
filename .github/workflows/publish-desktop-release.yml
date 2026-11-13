@@ -1,0 +1,195 @@
+name: Publish Desktop Release
+
+# Fast path: update notes + publish an existing draft without rebuilding installers.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag (must already exist as draft or published)"
+        required: true
+        type: string
+        default: "desktop-v0.1.0-rc.1"
+      version:
+        description: "Desktop version string shown in the title"
+        required: true
+        type: string
+        default: "0.1.0-rc.1"
+      draft:
+        description: "Keep as draft"
+        required: true
+        type: boolean
+        default: false
+      prerelease:
+        description: "Mark as prerelease"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish release notes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Write release notes and publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag }}
+          VERSION: ${{ inputs.version }}
+          DRAFT: ${{ inputs.draft }}
+          PRERELEASE: ${{ inputs.prerelease }}
+        run: |
+          set -euo pipefail
+          SHA="$(git rev-parse HEAD)"
+          SHORT_SHA="${SHA:0:12}"
+          DATE_UTC="$(date -u +%Y-%m-%d)"
+
+          cat > /tmp/release-notes.md << EOF
+          ## Qwen Code Desktop ${VERSION}
+
+          **Tag:** \`${TAG}\`  
+          **Desktop version:** \`${VERSION}\`  
+          **Bundled CLI:** \`@qwen-code/qwen-code@0.27.2\`  
+          **Source commit:** [\`${SHORT_SHA}\`](https://github.com/${GH_REPO}/commit/${SHA})  
+          **Built:** ${DATE_UTC} (UTC)  
+          **Signing:** unsigned fork build (no Apple / Microsoft code-signing certs)
+
+          This is the first desktop prerelease of the **Null3nter/qwen-code-local** fork. It packages the agent UI as a Tauri app with a bundled Node runtime and the monorepo CLI.
+
+          ---
+
+          ### What's new in this fork
+
+          - **First-class LM Studio** provider preset in **/auth** (local OpenAI-compatible endpoint at \`http://localhost:1234/v1\`)
+          - **First-class Ollama** provider preset in **/auth** (\`http://localhost:11434/v1\`)
+          - Local provider grouping in the auth UI (\`uiGroup: local\`)
+          - Fork-friendly CI that builds **unsigned** installers without upstream signing secrets
+
+          ---
+
+          ### Installers (download from Assets below)
+
+          | Platform | File | Notes |
+          |----------|------|--------|
+          | **Windows x64** | \`Qwen-Code-Desktop_${VERSION}_x64-setup.exe\` | NSIS installer. SmartScreen may warn on unsigned binaries — choose “More info” → “Run anyway”. |
+          | **Linux x64** | \`Qwen-Code-Desktop_${VERSION}_amd64.AppImage\` | Make executable: \`chmod +x …AppImage\` then run. |
+          | **Linux x64** | \`Qwen-Code-Desktop_${VERSION}_amd64.deb\` | \`sudo dpkg -i …deb\` (or open with your package installer). |
+          | **macOS Apple Silicon** | \`Qwen-Code-Desktop_${VERSION}_aarch64.dmg\` | Open the DMG and drag the app to Applications. |
+          | **macOS Apple Silicon** | \`Qwen-Code-Desktop.app.tar.gz\` | Alternative archive of the \`.app\` bundle. |
+
+          > **Not included in this build:** macOS Intel (x64) and Linux arm64. Open an issue if you need those targets.
+
+          ---
+
+          ### macOS Gatekeeper (unsigned)
+
+          Because this build is not notarized:
+
+          1. Open **System Settings → Privacy & Security** after the first launch block, or
+          2. Right-click the app → **Open** → confirm, or
+          3. Remove the quarantine flag:  
+             \`xattr -dr com.apple.quarantine /Applications/Qwen\\ Code\\ Desktop.app\`
+
+          ---
+
+          ### Using LM Studio / Ollama
+
+          1. Start **LM Studio** (local server, default port **1234**) or **Ollama** (default **11434**).
+          2. Open the desktop app → **/auth** (or the auth / provider UI).
+          3. Choose **LM Studio (Local)** or **Ollama (Local)**.
+          4. Select or type the model id loaded in your local server.
+
+          Optional env overrides:
+
+          - \`LMSTUDIO_API_KEY\` (default placeholder \`lm-studio\`)
+          - Point base URL at a non-default host if you changed the local server bind address.
+
+          ---
+
+          ### Source code
+
+          | Item | Link |
+          |------|------|
+          | Repository | https://github.com/${GH_REPO} |
+          | Commit for this build | https://github.com/${GH_REPO}/commit/${SHA} |
+          | Desktop package | \`packages/desktop\` (Tauri + React shell) |
+          | Core / agent | \`packages/core\` |
+          | LM Studio preset | \`packages/core/src/providers/presets/lmstudio.ts\` |
+          | Ollama preset | \`packages/core/src/providers/presets/ollama.ts\` |
+          | Fork release workflow | \`.github/workflows/desktop-fork-release.yml\` |
+
+          **Source archive for this tag** (generated by GitHub when the tag exists):
+
+          - Zip: https://github.com/${GH_REPO}/archive/refs/tags/${TAG}.zip
+          - Tarball: https://github.com/${GH_REPO}/archive/refs/tags/${TAG}.tar.gz
+
+          Build from source (high level):
+
+          \`\`\`bash
+          git clone https://github.com/${GH_REPO}.git
+          cd qwen-code-local
+          git checkout ${SHA}
+          # Node 22 + Rust toolchain required for desktop
+          npm ci   # or pnpm install if using the lockfile
+          cd packages/desktop
+          npm ci
+          npm run build:runtime
+          npm run tauri -- build --no-sign
+          \`\`\`
+
+          ---
+
+          ### Requirements
+
+          - **Windows:** Windows 10/11 x64
+          - **Linux:** x64 with WebKitGTK 4.1-compatible system libs (AppImage is the most portable)
+          - **macOS:** Apple Silicon (arm64), macOS 12+
+          - Local models: LM Studio or Ollama if you use those providers
+
+          ---
+
+          ### Known limitations
+
+          - Installers are **unsigned** (expected for this fork without cert secrets).
+          - A small helper binary (\`rg.exe\`) may appear in Windows artifacts from the bundle tree; the primary Windows entrypoint is the NSIS \`*-setup.exe\`.
+          - Prerelease quality — please file issues against this fork with OS, installer type, and logs.
+
+          ---
+
+          ### Verify the workflow run
+
+          Installers were produced by **Desktop Fork Release** on GitHub Actions. Check recent successful runs under:
+
+          https://github.com/${GH_REPO}/actions/workflows/desktop-fork-release.yml
+          EOF
+
+          # Flatten leading spaces from the heredoc indent
+          sed -i 's/^          //' /tmp/release-notes.md
+
+          if ! gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            echo "::error::Release $TAG does not exist. Run Desktop Fork Release first."
+            exit 1
+          fi
+
+          edit_args=(--repo "$GH_REPO" --title "Qwen Code Desktop $VERSION" --notes-file /tmp/release-notes.md)
+          if [ "$DRAFT" = true ]; then
+            edit_args+=(--draft)
+          else
+            edit_args+=(--draft=false)
+          fi
+          if [ "$PRERELEASE" = true ]; then
+            edit_args+=(--prerelease)
+          else
+            edit_args+=(--prerelease=false)
+          fi
+
+          gh release edit "$TAG" "${edit_args[@]}"
+          echo "Release URL: https://github.com/$GH_REPO/releases/tag/$TAG"
+          gh release view "$TAG" --repo "$GH_REPO"
