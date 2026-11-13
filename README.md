@@ -1,62 +1,47 @@
 <div align="center">
-Qwen Code Local
-A self-contained, local-first AI coding agent for your terminal, desktop, editor, and browser — standalone installation, native local model hosting, and direct ⁠npx⁠-free MCP connections.
-Releases · Desktop App (⁠v0.1.0-rc.2⁠) · Report an Issue
+
+# Qwen Code Local
+
+[![License](https://img.shields.io/github/license/Null3nter/qwen-code-local.svg)](./LICENSE)
+[![Release](https://img.shields.io/github/v/release/Null3nter/qwen-code-local?include_prereleases)](https://github.com/Null3nter/qwen-code-local/releases)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org/)
+
+**A self-contained, local-first AI coding agent. Zero `npx` overhead, native self-hosted model support, and direct MCP connectivity.**
+
+[Explore Releases](https://github.com/Null3nter/qwen-code-local/releases) · [Report an Issue](https://github.com/Null3nter/qwen-code-local/issues)
+
 </div>
-Why ⁠qwen-code-local⁠?
-This fork re-architects Qwen Code into a standalone, local-first engineering environment without package-runner overhead or forced cloud dependencies:
-￼ Zero-Dependency Standalone Installer & Desktop App — Install the CLI directly via a standalone script or download pre-built native desktop binaries. No global ⁠npm⁠ trees or ⁠npx⁠ runtime downloads required.
-￼ First-Class Self-Hosted Local Models — Register and switch between your own locally hosted models (Ollama, llama.cpp, vLLM, LM Studio, or any OpenAI-compatible local endpoint) directly in your configuration.
-￼ Direct MCP Connections (No ⁠npx⁠) — Replaces standard ⁠npx⁠-spawned Model Context Protocol (MCP) bridges with direct, native connections (local binaries, HTTP/SSE) for instant startup, lower memory footprint, and deterministic offline reliability.
-￼ Full Agentic Power — Includes Auto-Memory, Auto-Skills, SubAgents, Agent Teams, Plan Mode, Git Worktrees, and multi-protocol runtime switching.
-Installation
-1. Desktop App (⁠v0.1.0-rc.2⁠)
-Download the standalone desktop installer for your operating system directly from GitHub Releases:
-Platform
-Installer / Binary
-Size
-macOS (Apple Silicon / Universal)
-Qwen-Code-Desktop_0.1.0-rc.2_aarch64.dmg
-~94.3 MB
-macOS (App Archive)
-Qwen-Code-Desktop.app.tar.gz
-~96.3 MB
-Linux (Debian / Ubuntu)
-Qwen-Code-Desktop_0.1.0-rc.2_amd64.deb
-~104.9 MB
-Linux (AppImage)
-Qwen-Code-Desktop_0.1.0-rc.2_amd64.AppImage
-~163.4 MB
-Windows (x64 Installer)
-Qwen-Code-Desktop_0.1.0-rc.2_x64-setup.exe
-~53.7 MB
 
-2. Standalone CLI Script
-Install the terminal CLI directly without ⁠npm⁠ or ⁠npx⁠:
-Linux / macOS:
-Windows (PowerShell):
-Quick Start & Self-Hosted Local Models
-Point ⁠qwen-code-local⁠ directly to your self-hosted inference server (Ollama, llama.cpp, vLLM, or LM Studio) in ⁠~/.qwen/settings.json⁠ to run completely offline:
-Direct MCP Configuration (Zero ⁠npx⁠)
-Instead of spawning ⁠npx⁠ child processes for every tool server, ⁠qwen-code-local⁠ connects directly to compiled local binaries or active MCP endpoints in ⁠~/.qwen/settings.json⁠:
-This eliminates ⁠npx⁠ cache lookups, network cold-starts, and external package overhead when working offline or in air-gapped environments.
-Interfaces & Usage Modes
-Interface
-How to Launch
-Desktop App
-Open Qwen Code Desktop from your Applications / Start Menu.
-Terminal UI
-Run qwen inside any project directory. Use @filename to reference files in context.
-Web Shell & Daemon
-Run qwen serve --open (http://127.0.0.1:4170) or qwen daemon start for shared background sessions.
-Headless / Automation
-Run qwen -p "Summarize recent git changes" in CI/CD pipelines or shell scripts.
-IDE Integrations
-Connect via ACP to VS Code, Zed, or JetBrains editors.
+---
 
-Building from Source
-To build the CLI or desktop bundle locally from source:
-Acknowledgments & Upstream
-This project is an active, independent fork of QwenLM/qwen-code (originally derived from Google Gemini CLI), refactored by @Null3nter for standalone distribution, self-hosted local model workflows, and direct ⁠npx⁠-free MCP connectivity.
-License
-Licensed under the terms in LICENSE.
+## Architecture & Core Changes
+
+`qwen-code-local` is a purpose-built fork designed to eliminate external package-runner bloat and runtime cloud dependencies:
+
+* **Zero `npx` Dependencies** — Runs completely standalone. No dynamic package-manager fetches or background cache lookups.
+* **Direct MCP Connections** — Bypasses fragile `npx`-spawned tool wrappers by connecting directly to local binaries and SSE endpoints.
+* **Self-Hosted Model First** — Native configuration pathways for local backends (Ollama, vLLM, llama.cpp, LM Studio) or standard cloud endpoints.
+
+---
+
+## Desktop Downloads (`v0.1.0-rc.2`)
+
+Pre-built standalone desktop binaries are available directly from the [Releases page](https://github.com/Null3nter/qwen-code-local/releases)[span_0](start_span)[span_0](end_span)[span_1](start_span)[span_1](end_span):
+
+| Platform | Package | Size |
+| :--- | :--- | :--- |
+| **Windows (x64)** | [`Qwen-Code-Desktop_0.1.0-rc.2_x64-setup.exe`](https://github.com/Null3nter/qwen-code-local/releases/tag/desktop-v0.1.0-rc.2)[span_2](start_span)[span_2](end_span)[span_3](start_span)[span_3](end_span) | 53.7 MB[span_4](start_span)[span_4](end_span) |
+| **macOS (Apple Silicon)** | [`Qwen-Code-Desktop_0.1.0-rc.2_aarch64.dmg`](https://github.com/Null3nter/qwen-code-local/releases/tag/desktop-v0.1.0-rc.2)[span_5](start_span)[span_5](end_span)[span_6](start_span)[span_6](end_span) | 94.3 MB[span_7](start_span)[span_7](end_span) |
+| **macOS (Tarball)** | [`Qwen-Code-Desktop.app.tar.gz`](https://github.com/Null3nter/qwen-code-local/releases/tag/desktop-v0.1.0-rc.2)[span_8](start_span)[span_8](end_span)[span_9](start_span)[span_9](end_span) | 96.3 MB[span_10](start_span)[span_10](end_span) |
+| **Linux (Debian / Ubuntu)** | [`Qwen-Code-Desktop_0.1.0-rc.2_amd64.deb`](https://github.com/Null3nter/qwen-code-local/releases/tag/desktop-v0.1.0-rc.2)[span_11](start_span)[span_11](end_span)[span_12](start_span)[span_12](end_span) | 104.9 MB[span_13](start_span)[span_13](end_span) |
+| **Linux (AppImage)** | [`Qwen-Code-Desktop_0.1.0-rc.2_amd64.AppImage`](https://github.com/Null3nter/qwen-code-local/releases/tag/desktop-v0.1.0-rc.2)[span_14](start_span)[span_14](end_span)[span_15](start_span)[span_15](end_span) | 163.4 MB[span_16](start_span)[span_16](end_span) |
+
+---
+
+## Standalone Installation
+
+Install the CLI tool directly via standalone scripts:
+
+**Linux / macOS:**
+```bash
+curl -fsSL [https://raw.githubusercontent.com/Null3nter/qwen-code-local/main/scripts/install.sh](https://raw.githubusercontent.com/Null3nter/qwen-code-local/main/scripts/install.sh) | bash
