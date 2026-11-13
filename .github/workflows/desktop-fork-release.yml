@@ -104,7 +104,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ needs.prepare.outputs.sha }}
-          fetch-depth: 1
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -127,7 +127,7 @@ jobs:
         run: |
           if [ -f pnpm-lock.yaml ]; then
             corepack enable
-            corepack pnpm install --frozen-lockfile --prefer-offline --reporter=append-only
+            corepack pnpm install --no-frozen-lockfile --prefer-offline --reporter=append-only
           else
             npm ci --no-audit --progress=false
           fi
@@ -208,7 +208,7 @@ jobs:
             exit 1
           fi
           ls -la release-assets/
-          notes="Qwen Code Desktop $VERSION (unsigned fork build). Includes LM Studio/Ollama in /auth. Unsigned installers."
+          notes="Qwen Code Desktop $VERSION (unsigned fork build). Startup splash, LM Studio/Ollama, GitHub-direct MCP. Unsigned installers."
           args=(--repo "$GH_REPO" --title "Qwen Code Desktop $VERSION" --notes "$notes")
           if [ "$DRAFT" = true ]; then args+=(--draft); fi
           if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
