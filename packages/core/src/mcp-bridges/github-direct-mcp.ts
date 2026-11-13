@@ -47,9 +47,9 @@ export function readGithubTokenFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): string | undefined {
   return (
-    env.GITHUB_TOKEN?.trim() ||
-    env.GITHUB_PERSONAL_ACCESS_TOKEN?.trim() ||
-    env.GH_TOKEN?.trim() ||
+    env['GITHUB_TOKEN']?.trim() ||
+    env['GITHUB_PERSONAL_ACCESS_TOKEN']?.trim() ||
+    env['GH_TOKEN']?.trim() ||
     readTokenFile() ||
     undefined
   );
