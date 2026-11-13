@@ -181,6 +181,10 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - uses: actions/download-artifact@v4
         with:
           path: release-assets
@@ -190,6 +194,7 @@ jobs:
       - name: Create or update release
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           TAG: ${{ needs.prepare.outputs.tag }}
           VERSION: ${{ needs.prepare.outputs.version }}
           DRAFT: ${{ inputs.draft }}
@@ -202,13 +207,14 @@ jobs:
             echo "::error::No release assets downloaded"
             exit 1
           fi
+          ls -la release-assets/
           notes="Qwen Code Desktop $VERSION (unsigned fork build). Includes LM Studio/Ollama in /auth. Unsigned installers."
-          args=(--title "Qwen Code Desktop $VERSION" --notes "$notes")
+          args=(--repo "$GH_REPO" --title "Qwen Code Desktop $VERSION" --notes "$notes")
           if [ "$DRAFT" = true ]; then args+=(--draft); fi
           if [ "$PRERELEASE" = true ]; then args+=(--prerelease); fi
-          if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" "${assets[@]}" --clobber
-            edit=(--notes "$notes")
+          if gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${assets[@]}" --repo "$GH_REPO" --clobber
+            edit=(--repo "$GH_REPO" --notes "$notes")
             if [ "$DRAFT" = true ]; then edit+=(--draft); else edit+=(--draft=false); fi
             if [ "$PRERELEASE" = true ]; then edit+=(--prerelease); else edit+=(--prerelease=false); fi
             gh release edit "$TAG" "${edit[@]}"
