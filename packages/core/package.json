@@ -89,6 +89,10 @@
     "./shellResult": {
       "types": "./dist/src/utils/shell-result.d.ts",
       "import": "./dist/src/utils/shell-result.js"
+    },
+    "./githubDirectMcp": {
+      "types": "./dist/src/mcp-bridges/github-direct-mcp.d.ts",
+      "import": "./dist/src/mcp-bridges/github-direct-mcp.js"
     }
   },
   "scripts": {
