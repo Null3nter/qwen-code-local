@@ -1,3 +1,5 @@
+> **Note:** This is the **Null3nter/qwen-code-local** fork — not the official [QwenLM/qwen-code](https://github.com/QwenLM/qwen-code) project. Open issues and PRs against **this** repository: https://github.com/Null3nter/qwen-code-local
+
 # How to Contribute
 
 We would love to accept your patches and contributions to this project.
@@ -100,8 +102,8 @@ This section guides contributors on how to build, modify, and understand the dev
 To clone the repository:
 
 ```bash
-git clone https://github.com/QwenLM/qwen-code.git # Or your fork's URL
-cd qwen-code
+git clone https://github.com/Null3nter/qwen-code-local.git # Or your fork's URL
+cd qwen-code-local
 ```
 
 To install dependencies defined in `package.json` as well as root dependencies, use the pnpm version the repository pins in `packageManager` (Corepack, bundled with Node.js, fetches it):
@@ -140,7 +142,7 @@ To start the Qwen Code application from the source code (after building), run th
 npm start
 ```
 
-If you'd like to run the source build outside of the qwen-code folder, you can utilize `npm link path/to/qwen-code/packages/cli` (see: [docs](https://docs.npmjs.com/cli/v9/commands/npm-link)) to run with `qwen`
+If you'd like to run the source build outside of the qwen-code-local folder, you can utilize `npm link path/to/qwen-code-local/packages/cli` (see: [docs](https://docs.npmjs.com/cli/v9/commands/npm-link)) to run with `qwen`
 
 ### Running Tests
 
