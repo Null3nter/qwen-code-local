@@ -45,22 +45,3 @@ Install the CLI tool directly via standalone scripts:
 **Linux / macOS:**
 ```bash
 curl -fsSL [https://raw.githubusercontent.com/Null3nter/qwen-code-local/main/scripts/install.sh](https://raw.githubusercontent.com/Null3nter/qwen-code-local/main/scripts/install.sh) | bash
-# Download info!
-Platform
-Package
-Size
-Windows (x64)
-Qwen-Code-Desktop_0.1.0-rc.2_x64-setup.exe
-53.7 MB
-macOS (Apple Silicon)
-Qwen-Code-Desktop_0.1.0-rc.2_aarch64.dmg
-94.3 MB
-macOS (Tarball)
-Qwen-Code-Desktop.app.tar.gz
-96.3 MB
-Linux (Debian / Ubuntu)
-Qwen-Code-Desktop_0.1.0-rc.2_amd64.deb
-104.9 MB
-Linux (AppImage)
-Qwen-Code-Desktop_0.1.0-rc.2_amd64.AppImage
-163.4 MB
