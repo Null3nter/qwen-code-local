@@ -1,5 +1,5 @@
 name: 'Bug Report'
-description: 'Report a bug to help us improve Qwen Code'
+description: 'Report a bug to help us improve Qwen Code Local (this fork)'
 labels: ['type/bug', 'status/needs-triage']
 body:
   - type: 'markdown'
@@ -8,7 +8,8 @@ body:
         > [!IMPORTANT]
         > Thanks for taking the time to fill out this bug report!
         >
-        > Please search **[existing issues](https://github.com/QwenLM/qwen-code/issues)** to see if an issue already exists for the bug you encountered.
+        > This is the **unofficial** [Null3nter/qwen-code-local](https://github.com/Null3nter/qwen-code-local) fork — not the official QwenLM project.
+        > Please search **[existing issues](https://github.com/Null3nter/qwen-code-local/issues)** to see if an issue already exists for the bug you encountered.
 
   - type: 'textarea'
     id: 'problem'
@@ -49,7 +50,7 @@ body:
     id: 'login-info'
     attributes:
       label: 'Login information'
-      description: 'Describe how you are logging in (e.g., API Config).'
+      description: 'Describe how you are logging in (e.g., API Config, LM Studio, Ollama).'
 
   - type: 'textarea'
     id: 'additional-context'

@@ -1,9 +1,18 @@
 # Security Policy
 
-## Reporting a Vulnerability
+## Scope
 
-If you believe you have discovered a security vulnerability, please report it to us through the following portal: [Report Security Issue](https://yundun.console.aliyun.com/?p=xznew#/taskmanagement/tasks/detail/151)
+This policy applies to **Null3nter/qwen-code-local**, an **unofficial community fork** of Qwen Code. It is not the official QwenLM project.
 
-> **Note:** This channel is strictly for reporting security-related issues. Non-security vulnerabilities or general bug reports will not be addressed here.
+## Reporting a vulnerability
 
-We sincerely appreciate your responsible disclosure and your contribution to helping us keep our project secure.
+Please report security issues **for this fork** privately when possible:
+
+1. Prefer GitHub **[Private vulnerability reporting](https://github.com/Null3nter/qwen-code-local/security/advisories/new)** if enabled on the repository, or
+2. Open a **[Security-related issue](https://github.com/Null3nter/qwen-code-local/issues/new)** and mark it clearly as a security concern (avoid posting exploit details publicly if disclosure would put users at risk).
+
+> **Note:** This channel is for security-related issues in **this fork**. General bugs and feature requests belong in [Issues](https://github.com/Null3nter/qwen-code-local/issues).
+
+For vulnerabilities that only exist in **upstream** [QwenLM/qwen-code](https://github.com/QwenLM/qwen-code), report them to the upstream project’s own security process as well.
+
+We appreciate responsible disclosure.

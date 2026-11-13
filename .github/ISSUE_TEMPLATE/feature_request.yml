@@ -1,5 +1,5 @@
 name: 'Feature Request'
-description: 'Suggest an idea for this project'
+description: 'Suggest an idea for this fork (Qwen Code Local)'
 labels:
   - 'type/feature-request'
   - 'status/needs-triage'
@@ -10,7 +10,8 @@ body:
         > [!IMPORTANT]
         > Thanks for taking the time to suggest an enhancement!
         >
-        > Please search **[existing issues](https://github.com/QwenLM/qwen-code/issues)** to see if a similar feature has already been requested.
+        > This is the **unofficial** [Null3nter/qwen-code-local](https://github.com/Null3nter/qwen-code-local) fork — not the official QwenLM project.
+        > Please search **[existing issues](https://github.com/Null3nter/qwen-code-local/issues)** to see if a similar feature has already been requested.
 
   - type: 'textarea'
     id: 'feature'
