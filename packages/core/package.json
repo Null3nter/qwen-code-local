@@ -5,8 +5,12 @@
   "description": "Qwen Code Core",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/QwenLM/qwen-code.git"
+    "url": "git+https://github.com/Null3nter/qwen-code-local.git"
   },
+  "bugs": {
+    "url": "https://github.com/Null3nter/qwen-code-local/issues"
+  },
+  "homepage": "https://github.com/Null3nter/qwen-code-local#readme",
   "type": "module",
   "main": "dist/index.js",
   "exports": {
